@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Página de Pruebas WebSocket</title>
+    <title>Página de Pruebas WebSocket - Versión Mejorada</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -51,13 +51,26 @@
             font-weight: bold;
             color: red;
         }
+
+        #changeColorBtn {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+            #changeColorBtn:hover {
+                background-color: #0056b3;
+            }
     </style>
 </head>
 <body>
 
-    <h1>Página de Pruebas para Envío y Recepción de WebSocket</h1>
+    <h1>Página de Pruebas WebSocket - Versión Mejorada</h1>
 
-    <p>Con esta página puedes enviar y recibir mensajes a través de WebSocket para pruebas.</p>
+    <p>Esta página incluye una nueva funcionalidad para cambiar el color de fondo y ver el historial de mensajes recibidos.</p>
 
     <div id="status">Estado: Desconectado</div>
 
@@ -70,37 +83,42 @@
     <!-- Contenedor para los mensajes recibidos -->
     <div id="messages"></div>
 
-    <script>let socket;
+    <!-- Botón para cambiar el color de fondo -->
+    <button id="changeColorBtn">Cambiar color de fondo</button>
+
+    <script>
+        let socket;
         const statusDisplay = document.getElementById('status');
         const messagesDiv = document.getElementById('messages');
         const messageForm = document.getElementById('messageForm');
         const messageInput = document.getElementById('messageInput');
+        const changeColorBtn = document.getElementById('changeColorBtn');
 
         // Función para conectar al WebSocket
         function connectWebSocket() {
             socket = new WebSocket('ws://localhost:8080'); // Cambia esta URL por la de tu servidor WebSocket
 
-            socket.onopen = function() {
+            socket.onopen = function () {
                 statusDisplay.textContent = 'Estado: Conectado';
                 statusDisplay.style.color = 'green';
             };
 
-            socket.onmessage = function(event) {
+            socket.onmessage = function (event) {
                 displayMessage(event.data, 'received');
             };
 
-            socket.onclose = function() {
+            socket.onclose = function () {
                 statusDisplay.textContent = 'Estado: Desconectado';
                 statusDisplay.style.color = 'red';
             };
 
-            socket.onerror = function(error) {
+            socket.onerror = function (error) {
                 console.error('Error en WebSocket:', error);
             };
         }
 
         // Enviar mensaje
-        messageForm.addEventListener('submit', function(event) {
+        messageForm.addEventListener('submit', function (event) {
             event.preventDefault();
             const message = messageInput.value;
             if (message && socket.readyState === WebSocket.OPEN) {
@@ -119,7 +137,23 @@
             messagesDiv.scrollTop = messagesDiv.scrollHeight; // Auto-scroll
         }
 
+        // Cambiar el color de fondo al hacer clic en el botón
+        changeColorBtn.addEventListener('click', function () {
+            document.body.style.backgroundColor = getRandomColor();
+        });
+
+        // Función para obtener un color aleatorio
+        function getRandomColor() {
+            const letters = '0123456789ABCDEF';
+            let color = '#';
+            for (let i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        }
+
         // Conectar al cargar la página
-        window.addEventListener('load', connectWebSocket);</script>
+        window.addEventListener('load', connectWebSocket);
+    </script>
 </body>
 </html>
