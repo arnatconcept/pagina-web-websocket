@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Página de Pruebas WebSocket</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        #messageForm {
+            margin-bottom: 20px;
+        }
+
+        #messages {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            padding: 10px;
+            max-width: 600px;
+            height: 200px;
+            overflow-y: scroll;
+            margin-bottom: 20px;
+        }
+
+        .message {
+            padding: 5px;
+            border-bottom: 1px solid #ddd;
+        }
+
+            .message:last-child {
+                border-bottom: none;
+            }
+
+        .sent {
+            color: blue;
+        }
+
+        .received {
+            color: green;
+        }
+
+        #status {
+            font-weight: bold;
+            color: red;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Página de Pruebas para Envío y Recepción de WebSocket</h1>
+
+    <p>Con esta página puedes enviar y recibir mensajes a través de WebSocket para pruebas.</p>
+
+    <div id="status">Estado: Desconectado</div>
+
+    <!-- Formulario para enviar mensajes -->
+    <form id="messageForm">
+        <input type="text" id="messageInput" placeholder="Escribe un mensaje..." autocomplete="off">
+        <button type="submit">Enviar</button>
+    </form>
+
+    <!-- Contenedor para los mensajes recibidos -->
+    <div id="messages"></div>
+
+    <script>let socket;
+        const statusDisplay = document.getElementById('status');
+        const messagesDiv = document.getElementById('messages');
+        const messageForm = document.getElementById('messageForm');
+        const messageInput = document.getElementById('messageInput');
+
+        // Función para conectar al WebSocket
+        function connectWebSocket() {
+            socket = new WebSocket('ws://localhost:8080'); // Cambia esta URL por la de tu servidor WebSocket
+
+            socket.onopen = function() {
+                statusDisplay.textContent = 'Estado: Conectado';
+                statusDisplay.style.color = 'green';
+            };
+
+            socket.onmessage = function(event) {
+                displayMessage(event.data, 'received');
+            };
+
+            socket.onclose = function() {
+                statusDisplay.textContent = 'Estado: Desconectado';
+                statusDisplay.style.color = 'red';
+            };
+
+            socket.onerror = function(error) {
+                console.error('Error en WebSocket:', error);
+            };
+        }
+
+        // Enviar mensaje
+        messageForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            const message = messageInput.value;
+            if (message && socket.readyState === WebSocket.OPEN) {
+                socket.send(message);
+                displayMessage(message, 'sent');
+                messageInput.value = ''; // Limpiar el campo de entrada
+            }
+        });
+
+        // Mostrar mensajes en el contenedor
+        function displayMessage(message, type) {
+            const messageElement = document.createElement('div');
+            messageElement.textContent = message;
+            messageElement.classList.add('message', type);
+            messagesDiv.appendChild(messageElement);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight; // Auto-scroll
+        }
+
+        // Conectar al cargar la página
+        window.addEventListener('load', connectWebSocket);</script>
+</body>
+</html>
